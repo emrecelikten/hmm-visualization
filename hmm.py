@@ -7,11 +7,6 @@ class HMM:
     """A data structure that contains the necessary information for an HMM, such as transition probabilities,
     initial state probabilities, and so on."""
 
-    # def __init__(self num_states):
-    # self.num_states = num_states
-    # self.initial_probabilities = np.array([1, num_states])
-    # self.initial_probabilities.fill(1.0 / num_states)
-
     def __init__(self, initial_probabilities, transition_probabilities, observation_probabilities):
         if transition_probabilities.shape[0] != transition_probabilities.shape[1]:
             raise Exception('Transition probability matrix must be square!')
@@ -26,6 +21,7 @@ class HMM:
         self.observation_probabilities = observation_probabilities
 
     def evaluate(self, observations):
+        """Runs forward algorithm on given observations."""
         observation_length = len(observations)
 
         # rows: time, columns: states
@@ -42,6 +38,7 @@ class HMM:
         return alpha
 
     def decode(self, observations):
+        """Runs Viterbi algorithm on given observations to find the optimum state sequence."""
         observation_length = len(observations)
 
         # rows: time, columns: states
