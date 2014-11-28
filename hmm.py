@@ -54,11 +54,11 @@ class HMM:
 
         for t in xrange(1, observation_length):
             for j in xrange(0, self.num_states):
-                multiplication = np.multiply(delta[t - 1], self.transition_probabilities[:, j].T)
+                multiplication = np.multiply(delta[t - 1], self.transition_probabilities[:, j])
                 phi[t, j] = np.argmax(multiplication)
                 delta[t, j] = multiplication[phi[t, j]] * self.observation_probabilities[j, observations[t]]
 
-        state_sequence = np.zeros(observation_length)
+        state_sequence = np.zeros(observation_length).astype(int)
         state_sequence[observation_length - 1] = np.argmax(delta[observation_length - 1])
         sequence_probability = delta[observation_length - 1, state_sequence[observation_length - 1]]
 

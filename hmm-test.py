@@ -7,7 +7,7 @@ import random
 
 
 def generate_observations(num_classes):
-    size = random.randint(10, 20)
+    size = random.randint(5, 30)
 
     observations = np.empty(size).astype(int)
     for t in xrange(size):
@@ -42,13 +42,20 @@ class MyTest(unittest.TestCase):
 
         hmm = HMM(initial_probabilities, transition_probabilities, observation_probabilities)
 
-        for test_num in xrange(20):
+        # Run 10000 test cases with random observations
+        for test_num in xrange(10000):
             observations = generate_observations(6)
 
             sklearn_probability, sklearn_states = model.decode(observations, algorithm='viterbi')
             sklearn_probability = np.exp(sklearn_probability)
-            own_states, probability, _, _ = hmm.decode(observations)
-            self.assertEqual(sklearn_states.all(), own_states.all(), 'States do not match!')
+            own_states, probability, delta, phi = hmm.decode(observations)
+
+            # print(own_states)
+
+            self.assertEqual(sklearn_states.all(), own_states.all(),
+                             'States do not match:\n%s\n%s\nDelta:\n%s\nPhi:\n%s' % (
+                             sklearn_states, own_states, delta, phi))
+
             self.assertAlmostEqual(sklearn_probability, probability,
                                    msg='Probability does not match: %g != %g' % (sklearn_probability, probability),
                                    delta=1e-6)
