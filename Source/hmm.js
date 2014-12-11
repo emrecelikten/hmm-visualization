@@ -1,10 +1,3 @@
-var initProbs = math.matrix([[0.5, 0.3, 0.2]]);
-var obsProbs = new Object();
-obsProbs['hello'] = math.matrix([[0.63, 0.33, 0.04]]);
-obsProbs['world'] = math.matrix([[0.04, 0.33, 0.63]]);
-var transProbs = math.matrix([[0.1, 0.6, 0.3],[0.4, 0.2, 0.4],[0.3, 0.5, 0.2]]);
-obs = ['hello', 'hello', 'world', 'hello', 'world'];
-
 /**
 * Retrieve a column from a matrix
 * @param {Matrix | Array} matrix
@@ -44,8 +37,6 @@ function forward(initialProbabilities, transitionProbabilities, observationProba
     var alpha = math.zeros(observations.length, numStates);
 
      for(i = 0; i < numStates; i++) {
-        console.log(i);
-        console.log(initialProbabilities.get([0, i]) * observationProbabilities[observations[0]].get([0, i]));
         alpha.set([0, i], initialProbabilities.get([0, i]) * observationProbabilities[observations[0]].get([0, i]));
      }
 
