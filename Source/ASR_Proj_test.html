@@ -24,7 +24,7 @@
             <div class="span8">
                 <div id="hmm"></div>
                 <div id="cy"></div>
-                <div id="navBar" class="pagination pagination-large pagination-centered">
+                <div id="navBar" class="pagination pagination-large pagination-right">
                     <ul>
                         <li class="disabled" id="backNavButton"><a href="#" onclick="backButtonClicked();return false;">Back</a></li>
                         <li class="disabled" id="forwardNavButton"><a href="#" onclick="nextButtonClicked();return false;">Next</a></li>
@@ -59,7 +59,7 @@
                         <option value="60">60</option>
                     </select>
                     <br>
-                    <Button class="btn btn-primary" onclick="StartAnnimating()">Evaluate</Button>
+                    <Button class="btn btn-primary" id="startStopButton" onclick="EvaluateButtonPressed()">Evaluate</Button>
                     <input type="checkbox" id="autoModeCheckBox" onchange="autoModeChanged()" checked> Auto
                 </div>
 

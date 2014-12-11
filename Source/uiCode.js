@@ -4,6 +4,8 @@ var probs, graphHeight, graphWidth, numOfStates;
 var numOfObservations = 2;
 var defaultNumberOfStates = 2;
 var autoMode = true;
+var currentCol = -1;
+var animating = false;
 
 $(function(){ // on dom ready
   hmm = cytoscape({
@@ -97,26 +99,6 @@ $(function(){ // on dom ready
                           'transition-duration': '0.5s'
                           }),
                  
-//                     elements: {
-//                     nodes: [
-//                             { data: { id: 'a' }, position: { x: 0, y: 0 }, grabbable: false },
-//                             { data: { id: 'b' }, position: { x: 0, y: 100 }, grabbable: false },
-//                             { data: { id: 'c' }, position: { x: 100, y: 0 }, grabbable: false },
-//                             { data: { id: 'd' }, position: { x: 100, y: 100 }, grabbable: false },
-//                             { data: { id: 'e' }, position: { x: 200, y: 0 }, grabbable: false },
-//                             { data: { id: 'f' }, position: { x: 200, y: 100 }, grabbable: false },
-//                             ],
-//                     
-//                     edges: [
-//                             { data: { id: 'a"c', weight: 1, source: 'a', target: 'c' } },
-//                             { data: { id: 'ad', weight: 3, source: 'a', target: 'd' } },
-//                             { data: { id: 'bd', weight: 4, source: 'b', target: 'd' } },
-//                             { data: { id: 'ce', weight: 5, source: 'c', target: 'e' } },
-//                             { data: { id: 'cf', weight: 6, source: 'c', target: 'f' } },
-//                             { data: { id: 'df', weight: 2, source: 'd', target: 'f' } }
-//                             ]
-//                     },
-                 
                      layout: {
                         name: 'preset',
                         directed: true,
@@ -140,6 +122,14 @@ function initUIElements(){
 }
 
 function setOriginalState(numberOfStates){
+    cy.nodes().removeClass('highlighted-node');
+    cy.edges().removeClass('highlighted-edge');
+    
+    animating = false;
+    
+    currentCol = -1;
+    setNavButtonStatus();
+    
     probs = GetObservationProbabilities(numOfStates);
     graphWidth = math.size(probs).subset(math.index(1));
     
@@ -166,7 +156,6 @@ function AddNodes(probs,height, width){
                    });
         }
     }
-    
 }
 
 function AddEdges(){
@@ -184,7 +173,6 @@ function AddEdges(){
             }
         }
     }
-    
 }
 
 function InitHMM(){
@@ -206,22 +194,30 @@ function InitHMM(){
                       });
 }
 
-/************UI EVENT HANDLERS***********/
-
 function StartAnnimating(){
-    
+    setOriginalState(numOfStates);
     var i = 0;
+    animating = true;
     
-    highlightColumn(i);
-    
-    if( i < numOfObservations ){
-        i++;
-        setTimeout(highlightColumn(i), 1000);
-    }else{
-        //Animation is done
-        //Change button name to restart
+    var highlightColumnAuto = function(){
+        if(!animating)
+            return;
+        currentCol = i;
+        highlightColumn(i);
+        
+        if( i < numOfObservations && animating ){
+            i++;
+            setTimeout(highlightColumnAuto, 1000);
+        }else{
+            //Animation is done
+            //Change button name to restart
+            animating = false;
+        }
+        
         
     }
+    
+    highlightColumnAuto();
     
 }
 
@@ -238,6 +234,29 @@ function highlightColumn(col){
     }
 }
 
+function disHighlightColumn(col){
+    var edges;
+    var nodes = cy.elements("node[column =" + col + "]");
+    nodes.removeClass('highlighted-node');
+    
+    if(col > 0){
+        nodes.forEach(function( node ){
+                      edges = cy.edges("[target = '" + node.data().id + "']");
+                      edges.removeClass('highlighted-edge');
+                      });
+    }
+}
+
+/************UI EVENT HANDLERS***********/
+
+function EvaluateButtonPressed(){
+    if(autoMode){
+        StartAnnimating();
+    }else{
+        setOriginalState(numOfStates);
+    }
+}
+
 function numberOfStatesChanged(){
     //TODO: Validate if number and max limit
     
@@ -251,26 +270,45 @@ function numberOfStatesChanged(){
 function autoModeChanged(){
     autoMode = document.getElementById("autoModeCheckBox").checked;
     
-    //Enable and disable navigation buttons
-    if(autoMode){
-        document.getElementById("backNavButton").className = "disabled";
-//        document.getElementById("backNavButtonLink").removeEventListener("click", backButtonClicked);
-        document.getElementById("forwardNavButton").className = "disabled";
-//        document.getElementById("forwardNavButtonLink").removeEventListener("click", nextButtonClicked);
-    }else{
-        document.getElementById("backNavButton").className = "active";
-//        document.getElementById("backNavButtonLink").addEventListener("click", backButtonClicked);
-        document.getElementById("forwardNavButton").className = "active";
-//        document.getElementById("forwardNavButtonLink").addEventListener("click", nextButtonClicked);
-    }
+    setNavButtonStatus();
 }
 
 function backButtonClicked(){
-    alert('Hello');
+    //Clear selection for previous row
+    if(currentCol >= 0){
+        disHighlightColumn(currentCol--);
+    }
+    
+    setNavButtonStatus();
 }
 
 function nextButtonClicked(){
-    alert('Hello');
+    if(currentCol < numOfObservations){
+        highlightColumn(++currentCol);
+    }
+    
+    setNavButtonStatus();
+}
+
+function setNavButtonStatus(){
+    //Enable and disable navigation buttons
+    if(autoMode){
+        document.getElementById("backNavButton").className = "disabled";
+        document.getElementById("forwardNavButton").className = "disabled";
+    }else{
+        document.getElementById("backNavButton").className = "active";
+        document.getElementById("forwardNavButton").className = "active";
+    }
+    
+    if(currentCol >= numOfObservations){
+        document.getElementById("forwardNavButton").className = "disabled";
+    }
+    else if(currentCol < 0){
+        document.getElementById("backNavButton").className = "disabled";
+    }else{
+        document.getElementById("backNavButton").className = "active";
+        document.getElementById("forwardNavButton").className = "active";
+    }
 }
 
 /************HELPER METHODS**************/
