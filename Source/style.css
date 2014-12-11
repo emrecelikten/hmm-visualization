@@ -3,7 +3,7 @@ body {
 }
 #header {
     width: 100%;
-    margin-left : 40px;
+    margin-left : 30px;
     margin-bottom : 40px;
 }
 
@@ -29,7 +29,7 @@ body {
 
 #navBar {
     height: 10%;
-    top: 90%;
+    top: 89%;
 }
 
 #controls {

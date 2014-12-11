@@ -211,31 +211,31 @@ function InitHMM(){
 function StartAnnimating(){
     
     var i = 0;
-    var edges;
-    var highlightNextColumn = function(){
-        //        edges[i].data().weight = 10;
-        nodes = cy.elements("node[column =" + i + "]");
-        nodes.addClass('highlighted-node');
-        
-        if(i > 0){
-            nodes.forEach(function( node ){
-                          edges = cy.edges("[target = '" + node.data().id + "']");
-                          edges.addClass('highlighted-edge');
-                          });
-        }
-        
-        if( i < numOfObservations ){
-            i++;
-            setTimeout(highlightNextColumn, 1000);
-        }else{
-            //Animation is done
-            //Change button name to restart
-            
-        }
-    };
     
-    // kick off first highlight
-    highlightNextColumn();
+    highlightColumn(i);
+    
+    if( i < numOfObservations ){
+        i++;
+        setTimeout(highlightColumn(i), 1000);
+    }else{
+        //Animation is done
+        //Change button name to restart
+        
+    }
+    
+}
+
+function highlightColumn(col){
+    var edges;
+    var nodes = cy.elements("node[column =" + col + "]");
+    nodes.addClass('highlighted-node');
+    
+    if(col > 0){
+        nodes.forEach(function( node ){
+                      edges = cy.edges("[target = '" + node.data().id + "']");
+                      edges.addClass('highlighted-edge');
+                      });
+    }
 }
 
 function numberOfStatesChanged(){
@@ -270,7 +270,7 @@ function backButtonClicked(){
 }
 
 function nextButtonClicked(){
-    alert('Hello'); 
+    alert('Hello');
 }
 
 /************HELPER METHODS**************/
