@@ -1,11 +1,13 @@
 var hmm, cy;
 
 var probs, graphHeight, graphWidth, numOfStates;
-var numOfObservations = 2;
+var observationAlphabets;
+var numOfObservations;
 var defaultNumberOfStates = 2;
 var autoMode = true;
 var currentCol = -1;
 var animating = false;
+var defaults;
 
 $(function(){ // on dom ready
   hmm = cytoscape({
@@ -110,6 +112,11 @@ $(function(){ // on dom ready
   
   document.getElementById("numberOfStatesInput").value = defaultNumberOfStates;
   numOfStates = defaultNumberOfStates;
+  
+  observationAlphabets = ['a', 'b', 'c', 'd', 'e'];
+  numOfObservations = observationAlphabets.length;
+  defaults = getFlatStartProbabilities(numOfStates, observationAlphabets);
+  
   setOriginalState(numOfStates);
   
 }); // on dom ready
@@ -130,8 +137,8 @@ function setOriginalState(numberOfStates){
     currentCol = -1;
     setNavButtonStatus();
     
-    probs = GetObservationProbabilities(numOfStates);
-    graphWidth = math.size(probs).subset(math.index(1));
+    probs = forward(defaults[0], defaults[1], defaults[2], observationAlphabets);
+    graphWidth = math.size(probs).subset(math.index(0));
     
     AddNodes(probs, numOfStates, graphWidth);
     AddEdges();
@@ -151,7 +158,7 @@ function AddNodes(probs,height, width){
         for(j=0;j<height;j++){
             cy.add({
                    group: "nodes",
-                   data: { id:  'S' + j + 'T' + i , weight: probs.subset(math.index(j,i)), row: j , column: i },
+                   data: { id:  'S' + j + 'T' + i , weight: probs.subset(math.index(i,j)), row: j , column: i },
                    position: { x: xi + i*100, y: yi + j*100 }
                    });
         }
@@ -357,11 +364,8 @@ function GetObservationProbabilities(numOfStates){
     }
 }
 
-function GetDefaultInitialProbs(states){
-    var inProbs = math.ones(states);
-    for(i=0;i < states; i++){
-        math.subset(inProbs, math.index(1, 0), 1/states);
-    }
+function GetDefaultInitialProbs(states, obs){
+    var defaults = getFlatStartProbabilities(states, obs);
 }
 
 
