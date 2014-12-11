@@ -2,6 +2,9 @@ var hmm, cy;
 
 var probs, graphHeight, graphWidth, numOfStates;
 var observationAlphabets;
+var initialProbs;
+var transitionProbabilities;
+var observationProbabilities;
 var numOfObservations;
 var defaultNumberOfStates = 2;
 var autoMode = true;
@@ -48,7 +51,7 @@ $(function(){ // on dom ready
                  roots: '#a',
                  padding: 10
                  },
-                 userPanningEnabled: true
+//                 userPanningEnabled: true
                  });
 
   cy = cytoscape({
@@ -110,12 +113,36 @@ $(function(){ // on dom ready
                      userPanningEnabled: true
             });
   
+  hmm.on('select', 'node', { foo: 'bar' }, function(evt){
+//        console.log( evt.data.foo ); // 'bar'
+        
+        var node = evt.cyTarget;
+        userSelectedNode(node);
+        console.log( 'tapped ' + node.id() );
+        });
+  
+  hmm.on('unselect', 'node', { foo: 'bar' }, function(evt){
+//         console.log( evt.data.foo ); // 'bar'
+         
+         var node = evt.cyTarget;
+         if(hmm.elements(":selected").length == 0){
+            userUnSelectedNode(node);
+         }
+         
+         console.log( 'tapped ' + node.id() );
+         });
+  
   document.getElementById("numberOfStatesInput").value = defaultNumberOfStates;
   numOfStates = defaultNumberOfStates;
   
   observationAlphabets = ['a', 'b', 'c', 'd', 'e'];
+  document.getElementById("observationsInput").value = observationAlphabets.join('');
   numOfObservations = observationAlphabets.length;
   defaults = getFlatStartProbabilities(numOfStates, observationAlphabets);
+  
+  initialProbs = defaults[0];
+  transitionProbabilities = defaults[1];
+  observationProbabilities = defaults[2];
   
   setOriginalState(numOfStates);
   
@@ -129,8 +156,13 @@ function initUIElements(){
 }
 
 function setOriginalState(numberOfStates){
-    cy.nodes().removeClass('highlighted-node');
-    cy.edges().removeClass('highlighted-edge');
+//    cy.nodes().removeClass('highlighted-node');
+//    cy.edges().removeClass('highlighted-edge');
+    
+    cy.remove(cy.nodes());
+    cy.remove(cy.edges());
+    
+    hmm.remove(hmm.elements());
     
     animating = false;
     
@@ -154,13 +186,22 @@ function AddNodes(probs,height, width){
     xi = 200;
     yi = 200;
     
-    for(i=0;i<width;i++){
+    for(i=-1;i<width;i++){
         for(j=0;j<height;j++){
-            cy.add({
-                   group: "nodes",
-                   data: { id:  'S' + j + 'T' + i , weight: probs.subset(math.index(i,j)), row: j , column: i },
-                   position: { x: xi + i*100, y: yi + j*100 }
-                   });
+            if(i<0){
+                cy.add({
+                       group: "nodes",
+                       data: { id:  'S' + j + 'T' + (i + 1)  , weight: round(initialProbs.subset(math.index(0,j)), 5), row: j , column: i + 1 },
+                       position: { x: xi + (i + 1)*100, y: yi + j*100 }
+                       });
+            }else{
+                cy.add({
+                       group: "nodes",
+                       data: { id:  'S' + j + 'T' + (i + 1)  , weight: round(probs.subset(math.index(i,j)), 5), row: j , column: i + 1 },
+                       position: { x: xi + (i + 1)*100, y: yi + j*100 }
+                       });
+            }
+            
         }
     }
 }
@@ -264,13 +305,33 @@ function EvaluateButtonPressed(){
     }
 }
 
+function observationsChanged(){
+    //TODO: Validate observations are all alphabets
+    
+    var newVals = document.getElementById("observationsInput").value;
+    observationAlphabets = newVals.split("");
+    numOfObservations = observationAlphabets.length;
+    
+    cy.remove(cy.elements());
+    hmm.remove(hmm.elements());
+    defaults = getFlatStartProbabilities(numOfStates, observationAlphabets);
+    initialProbs = defaults[0];
+    transitionProbabilities = defaults[1];
+    observationProbabilities = defaults[2];
+    setOriginalState(numOfStates);
+}
+
 function numberOfStatesChanged(){
     //TODO: Validate if number and max limit
     
-    //Clear all elementes
+    numOfStates = parseInt(document.getElementById("numberOfStatesInput").value);
+    
     cy.remove(cy.elements());
     hmm.remove(hmm.elements());
-    numOfStates = document.getElementById("numberOfStatesInput").value;
+    defaults = getFlatStartProbabilities(numOfStates, observationAlphabets);
+    initialProbs = defaults[0];
+    transitionProbabilities = defaults[1];
+    observationProbabilities = defaults[2];
     setOriginalState(numOfStates);
 }
 
@@ -318,6 +379,37 @@ function setNavButtonStatus(){
     }
 }
 
+/**********CYTOSCAPE EVENTS**************/
+function userSelectedNode(node){
+    document.getElementById("hmmSettingsInf").className = "hiddenHmmSettingsInfo";
+    document.getElementById("hmmSettings").className = "visibleHmmSettings";
+    
+    //display prob values
+    var sInitProbs = initialProbs.subset(math.index(0,node.data('column')));
+    document.getElementById("initialProbInput").value = sInitProbs;
+    
+    var obsProbString = "";
+    for(i=0;i<observationAlphabets.length;i++){
+        
+        var sObsProbs = observationProbabilities[observationAlphabets[i]].subset(math.index(0,node.data('column')));
+        
+        obsProbString += sObsProbs;
+        if(i != observationAlphabets.length - 1){
+            obsProbString += ",";
+        }
+    }
+    document.getElementById("observationProbInputs").value = obsProbString;
+    
+    sTransProbwidth = math.size(transitionProbabilities).subset(math.index(0));
+    var straProbs = transitionProbabilities.subset(math.index(node.data('column'), [0, sTransProbwidth]));
+    document.getElementById("transitionProbInputs").value = commaSeparatedList(straProbs);
+}
+
+function userUnSelectedNode(node){
+    document.getElementById("hmmSettingsInf").className = "visibleHmmSettingsInfo";
+    document.getElementById("hmmSettings").className = "hiddenHmmSettings";
+}
+
 /************HELPER METHODS**************/
 
 function getRandomColor() {
@@ -327,6 +419,34 @@ function getRandomColor() {
         color += letters[Math.floor(Math.random() * 16)];
     }
     return color;
+}
+
+function round(value, decimals) {
+    return Number(Math.round(value+'e'+decimals)+'e-'+decimals);
+}
+
+function commaSeparatedList(matrix) {
+    var string = "";
+    for(i=0;i<math.size(matrix).subset(math.index(1));i++){
+        string += matrix.subset(math.index(0,i));
+        if(i != math.size(matrix).subset(math.index(1)) - 1){
+            string += ",";
+        }
+    }
+    
+    return string;
+}
+
+function commaSeparatedListFromArray(array) {
+    var string = "";
+    for(i=0;i<array.length;i++){
+        string += array[i];
+        if(i != array.length - 1){
+            string += ",";
+        }
+    }
+    
+    return string;
 }
 
 function GetObservationProbabilities(numOfStates){
