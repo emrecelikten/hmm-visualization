@@ -152,8 +152,10 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
 
 /**
  * Creates flat-start probabilities for the UI.
+ *
+ * Sample usage: getFlatStartProbabilities(5, ['a', 'b', 'c', 'd', 'e']);
  * @param numStates number of states in the HMM
- * @param observationAlphabet the set of observations that can be encountered
+ * @param observationAlphabet an array containing the set of observations that can be encountered
  * @returns {*[]} an array containing initial state probabilities, state transition probabilities and observation probabilities
  */
 function getFlatStartProbabilities(numStates, observationAlphabet) {
@@ -172,7 +174,7 @@ function getFlatStartProbabilities(numStates, observationAlphabet) {
     }
 
     observationAlphabet.forEach(function (elem) {
-        observationProbabilities[elem] = stateFlatStart;
+        observationProbabilities[elem] = initialProbabilities.clone();
     });
 
     return [initialProbabilities, transitionProbabilities, observationProbabilities];
