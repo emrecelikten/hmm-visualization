@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<script src="uiJs.js"></script>
+
+<head>
+    <link href="style.css" rel="stylesheet" />
+    <meta charset=utf-8 />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+    <script src="uiCode.js"></script>
+    
+    <!-- Bootstrap core CSS -->
+<!--    <link href="../dist/css/bootstrap.min.css" rel="stylesheet">-->
+    <link href="bootstrap-mod.css" rel="stylesheet">
+        
+</head>
+
+<html>
+    <body>
+        <div id="header">
+            <h1>Hidden Markov Models<small> Computation visualization </small></h1>
+        </div>
+        <div class="row-fluid">
+            <div class="span8">
+                <div id="hmm"></div>
+                <div id="cy"></div>
+                <div id="navBar" class="pagination pagination-large pagination-centered">
+                    <ul>
+                        <li class="active"><a href="#" onclick="MyFunction();return false;">Back</a></li>
+                        <li class="active"><a href="#" onclick="MyFunction();return false;">Pause</a></li>
+                        <li class="active"><a href="#" onclick="MyFunction();return false;">Forward</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="span4">
+                <div id="controls">
+                    <br>
+                    <br>
+                    <div class="input-group" style="width:70%">
+                        Algorithm:<br>
+                        <select name="algorithm" class="form-control">
+                            <option value="forward">Forward</option>
+                            <option value="backward">Backward</option>
+                            <option value="viterbe">Viterbe</option>
+                        </select>
+                        <br><br><br>
+                        Animation Speed(step per minute)<br>
+                        <select name="animSpeed" class="form-control">
+                            <option value="20">20</option>
+                            <option value="40">40</option>
+                            <option value="60">60</option>
+                        </select>
+                    </div>
+                    <br><br>
+                    <div style="width:70%">
+                        <input type="number" class="form-control" id="numberOfStatesInput" placeholder="Number of states" onchange="numberOfStatesChanged()">
+                            </div>
+                    <br>
+                    <div style="width:70%">
+                        <input type="email" class="form-control" id="exampleInputEmail2" placeholder="Observation">
+                            </div>
+                    <br>
+                    <br>
+                    <Button class="btn btn-primary" onclick="StartAnnimating()">Start</Button>
+                    <input type="checkbox" checked> Auto
+                        </div>
+
+            </div>
+        </div>
+        
+        
+        <!-- Bootstrap core JavaScript
+         ================================================== -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/mathjs/1.1.1/math.js"></script>
+        <script src="../dist/js/bootstrap.min.js"></script>
+    </body>
+</html>

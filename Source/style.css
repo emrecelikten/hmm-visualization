@@ -1,0 +1,41 @@
+body {
+    font: 14px helvetica neue, helvetica, arial, sans-serif;
+}
+#header {
+    width: 100%;
+    margin-left : 40px;
+    margin-bottom : 40px;
+}
+
+#cy, #hmm, #navBar {
+    width: 70%;
+    position: absolute;
+    left: 0;
+    /*padding: 20px;*/
+    margin:2%;
+}
+
+#cy {
+    Background: #EDF1FA;
+    height: 50%;
+    top: 37%;
+}
+
+#hmm {
+    Background: lightgrey;
+    height: 30%;
+    top: 7%;
+}
+
+#navBar {
+    height: 10%;
+    top: 90%;
+}
+
+#controls {
+    height: 100%;
+    width: 30%;
+    position: absolute;
+    left: 75%;
+    top: 5%;
+}
