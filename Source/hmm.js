@@ -1,10 +1,3 @@
-var initProbs = math.matrix([[0.5, 0.3, 0.2]]);
-var obsProbs = new Object();
-obsProbs['hello'] = math.matrix([[0.63, 0.33, 0.04]]);
-obsProbs['world'] = math.matrix([[0.04, 0.33, 0.63]]);
-var transProbs = math.matrix([[0.1, 0.6, 0.3], [0.4, 0.2, 0.4], [0.3, 0.5, 0.2]]);
-obs = ['hello', 'hello', 'world', 'hello', 'world'];
-
 /**
  * Retrieve a column from a matrix
  * @param {Matrix | Array} matrix
@@ -56,7 +49,7 @@ function vectorArgmax(vector) {
 // Needs cleanup
 function elementwiseMul(vector1, vector2) {
     arr1 = math.squeeze(vector1);
-    arr2= math.squeeze(vector2);
+    arr2 = math.squeeze(vector2);
 
     if (arr1.size()[0] != arr2.size()[0]) {
         throw "Vectors are not of the same shape!";
@@ -154,4 +147,33 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
     bestStateSequenceProbability = delta.get([observations.length - 1, mostLikelyState]);
 
     return [stateSequence, bestStateSequenceProbability, delta, phi]
+}
+
+
+/**
+ * Creates flat-start probabilities for the UI.
+ * @param numStates number of states in the HMM
+ * @param observationAlphabet the set of observations that can be encountered
+ * @returns {*[]} an array containing initial state probabilities, state transition probabilities and observation probabilities
+ */
+function getFlatStartProbabilities(numStates, observationAlphabet) {
+    initialProbabilities = math.zeros(1, numStates);
+    transitionProbabilities = math.zeros(numStates, numStates);
+    observationProbabilities = new Object();
+
+    stateFlatStart = 1.0 / numStates;
+
+    for (i = 0; i < numStates; i++) {
+        initialProbabilities.set([0, i], stateFlatStart);
+
+        for (j = 0; j < numStates; j++) {
+            transitionProbabilities.set([i, j], stateFlatStart);
+        }
+    }
+
+    observationAlphabet.forEach(function (elem) {
+        observationProbabilities[elem] = stateFlatStart;
+    });
+
+    return [initialProbabilities, transitionProbabilities, observationProbabilities];
 }
