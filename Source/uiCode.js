@@ -357,5 +357,12 @@ function GetObservationProbabilities(numOfStates){
     }
 }
 
+function GetDefaultInitialProbs(states){
+    var inProbs = math.ones(states);
+    for(i=0;i < states; i++){
+        math.subset(inProbs, math.index(1, 0), 1/states);
+    }
+}
+
 
 
