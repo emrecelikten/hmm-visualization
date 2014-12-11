@@ -4927,7 +4927,7 @@ input[type="submit"].btn.btn-mini {
 
 .pagination ul > .active > a,
 .pagination ul > .active > span {
-    color: #999999;
+    color: rgb(17, 134, 241);
     cursor: default;
 }
 

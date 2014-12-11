@@ -25,9 +25,8 @@
                 <div id="cy"></div>
                 <div id="navBar" class="pagination pagination-large pagination-centered">
                     <ul>
-                        <li class="active"><a href="#" onclick="MyFunction();return false;">Back</a></li>
-                        <li class="active"><a href="#" onclick="MyFunction();return false;">Pause</a></li>
-                        <li class="active"><a href="#" onclick="MyFunction();return false;">Forward</a></li>
+                        <li class="disabled" id="backNavButton"><a href="#" onclick="backButtonClicked();return false;">Back</a></li>
+                        <li class="disabled" id="forwardNavButton"><a href="#" onclick="nextButtonClicked();return false;">Next</a></li>
                     </ul>
                 </div>
             </div>
@@ -36,33 +35,32 @@
                     <br>
                     <br>
                     <div class="input-group" style="width:70%">
-                        Algorithm:<br>
+                        Algorithm<br>
                         <select name="algorithm" class="form-control">
                             <option value="forward">Forward</option>
                             <option value="backward">Backward</option>
                             <option value="viterbe">Viterbe</option>
                         </select>
-                        <br><br><br>
-                        Animation Speed(step per minute)<br>
-                        <select name="animSpeed" class="form-control">
-                            <option value="20">20</option>
-                            <option value="40">40</option>
-                            <option value="60">60</option>
-                        </select>
+                        <br>
                     </div>
-                    <br><br>
+                    Number of States
                     <div style="width:70%">
                         <input type="number" class="form-control" id="numberOfStatesInput" placeholder="Number of states" onchange="numberOfStatesChanged()">
-                            </div>
-                    <br>
+                    </div>
                     <div style="width:70%">
                         <input type="email" class="form-control" id="exampleInputEmail2" placeholder="Observation">
                             </div>
                     <br>
+                    Animation Speed(step per minute)<br>
+                    <select name="animSpeed" class="form-control">
+                        <option value="20">20</option>
+                        <option value="40">40</option>
+                        <option value="60">60</option>
+                    </select>
                     <br>
                     <Button class="btn btn-primary" onclick="StartAnnimating()">Start</Button>
-                    <input type="checkbox" checked> Auto
-                        </div>
+                    <input type="checkbox" id="autoModeCheckBox" onchange="autoModeChanged()" checked> Auto
+                </div>
 
             </div>
         </div>

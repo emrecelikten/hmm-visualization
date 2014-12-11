@@ -39,3 +39,18 @@ body {
     left: 75%;
     top: 5%;
 }
+
+.pagination ul > .active > a {
+    color: rgb(17, 134, 241);
+    cursor: default;s
+}
+
+.pagination ul > .disabled > a {
+    pointer-events: none;
+}
+
+
+
+
+
+

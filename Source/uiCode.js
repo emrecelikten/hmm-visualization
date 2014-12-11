@@ -2,6 +2,8 @@ var hmm, cy;
 
 var probs, graphHeight, graphWidth, numOfStates;
 var numOfObservations = 2;
+var defaultNumberOfStates = 2;
+var autoMode = true;
 
 $(function(){ // on dom ready
   hmm = cytoscape({
@@ -23,12 +25,13 @@ $(function(){ // on dom ready
                       'target-arrow-shape': 'triangle',
                       'width': 2,
                       'line-color': '#ddd',
-                      'target-arrow-color': '#ddd'
+                      'target-arrow-color': '#ddd',
+                      'line-color': 'data(color)',
+                      'target-arrow-color': 'data(color)'
                       })
                  .selector(':selected')
                  .css({
                       'background-color': '#61bffc',
-                      'width': 'mapData(weight, 0, 30, 1, 30)',
                       'line-color': '#61bffc',
                       'target-arrow-color': '#61bffc',
                       'transition-property': 'background-color, line-color, target-arrow-color',
@@ -123,47 +126,16 @@ $(function(){ // on dom ready
                      userPanningEnabled: true
             });
   
-  numOfStates = 2;
+  document.getElementById("numberOfStatesInput").value = defaultNumberOfStates;
+  numOfStates = defaultNumberOfStates;
   setOriginalState(numOfStates);
   
 }); // on dom ready
 
-function StartAnnimating(){
-    
-    var i = 0;
-    var edges;
-    var highlightNextColumn = function(){
-//        edges[i].data().weight = 10;
-        nodes = cy.elements("node[column =" + i + "]");
-        nodes.addClass('highlighted-node');
-        
-        if(i > 0){
-            nodes.forEach(function( node ){
-                       edges = cy.edges("[target = '" + node.data().id + "']");
-                       edges.addClass('highlighted-edge');
-                  });
-        }
-        
-        if( i < numOfObservations ){
-            i++;
-            setTimeout(highlightNextColumn, 1000);
-        }else{
-            //Animation is done
-            //Change button name to restart
-            
-        }
-    };
-    
-    // kick off first highlight
-    highlightNextColumn();
-}
-
-function numberOfStatesChanged(){
-    //TODO: Validate if number and max limit
-    
-    //Clear all elementes
-    cy.remove(cy.elements());
-    numOfStates = document.getElementById("numberOfStatesInput").value;
+function initUIElements(){
+    autoMode = document.getElementById("autoModeCheckBox").value;
+    document.getElementById("numberOfStatesInput").value = defaultNumberOfStates;
+    numOfStates = defaultNumberOfStates;
     setOriginalState(numOfStates);
 }
 
@@ -225,17 +197,91 @@ function InitHMM(){
     }
     
     hmm.nodes().forEach(function( node, i , nodes){
-                      hmm.add({
-                             group: "edges",
-                             data: { id: '' + node.data().id + '' + node.data().id , weight: 1, source: node.data().id , target: node.data().id}
-                             });
-                        if(i<numOfStates-1){
-                        hmm.add({
-                                group: "edges",
-                                data: { id: '' + node.data().id + '' + nodes[i + 1].data().id , weight: 1, source: node.data().id , target: nodes[i + 1].data().id}
-                                });
-                        }
+            hmm.nodes().forEach(function( node2 ){
+                                hmm.add({
+                                    group: "edges",
+                                        data: { id: '' + node.data().id + '' + node2.data().id , weight: 1, source: node.data().id , target: node2.data().id, color: getRandomColor()}
+                                    });
+                            });
                       });
+}
+
+/************UI EVENT HANDLERS***********/
+
+function StartAnnimating(){
+    
+    var i = 0;
+    var edges;
+    var highlightNextColumn = function(){
+        //        edges[i].data().weight = 10;
+        nodes = cy.elements("node[column =" + i + "]");
+        nodes.addClass('highlighted-node');
+        
+        if(i > 0){
+            nodes.forEach(function( node ){
+                          edges = cy.edges("[target = '" + node.data().id + "']");
+                          edges.addClass('highlighted-edge');
+                          });
+        }
+        
+        if( i < numOfObservations ){
+            i++;
+            setTimeout(highlightNextColumn, 1000);
+        }else{
+            //Animation is done
+            //Change button name to restart
+            
+        }
+    };
+    
+    // kick off first highlight
+    highlightNextColumn();
+}
+
+function numberOfStatesChanged(){
+    //TODO: Validate if number and max limit
+    
+    //Clear all elementes
+    cy.remove(cy.elements());
+    hmm.remove(hmm.elements());
+    numOfStates = document.getElementById("numberOfStatesInput").value;
+    setOriginalState(numOfStates);
+}
+
+function autoModeChanged(){
+    autoMode = document.getElementById("autoModeCheckBox").checked;
+    
+    //Enable and disable navigation buttons
+    if(autoMode){
+        document.getElementById("backNavButton").className = "disabled";
+//        document.getElementById("backNavButtonLink").removeEventListener("click", backButtonClicked);
+        document.getElementById("forwardNavButton").className = "disabled";
+//        document.getElementById("forwardNavButtonLink").removeEventListener("click", nextButtonClicked);
+    }else{
+        document.getElementById("backNavButton").className = "active";
+//        document.getElementById("backNavButtonLink").addEventListener("click", backButtonClicked);
+        document.getElementById("forwardNavButton").className = "active";
+//        document.getElementById("forwardNavButtonLink").addEventListener("click", nextButtonClicked);
+    }
+}
+
+function backButtonClicked(){
+    alert('Hello');
+}
+
+function nextButtonClicked(){
+    alert('Hello'); 
+}
+
+/************HELPER METHODS**************/
+
+function getRandomColor() {
+    var letters = '0123456789ABCDEF'.split('');
+    var color = '#';
+    for (var i = 0; i < 6; i++ ) {
+        color += letters[Math.floor(Math.random() * 16)];
+    }
+    return color;
 }
 
 function GetObservationProbabilities(numOfStates){
