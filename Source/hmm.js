@@ -81,6 +81,7 @@ function forward(initialProbabilities, transitionProbabilities, observationProba
 
     // Contains computation strings
     var alphaComputations = math.matrix([observations.length, numStates]);
+    var arrows = math.matrix([observations.length, numStates]);
 
     // Fill the initial conditions
     for (i = 0; i < numStates; i++) {
@@ -89,14 +90,24 @@ function forward(initialProbabilities, transitionProbabilities, observationProba
     }
 
     // Recursion step
+    // TODO: Cleanup, we iterate multiple times for the same thing
     for (t = 1; t < observations.length; t++) {
         for (j = 0; j < numStates; j++) {
             alpha.set([t, j], math.multiply(row(alpha, t - 1), col(transitionProbabilities, j)) * observationProbabilities[observations[t]].get([0, j]));
             alphaComputations.set([t, j], '( ' + math.string(row(alpha, t - 1)) + ' . ' + math.string(col(transitionProbabilities, j)) + ' ) * ' + observationProbabilities[observations[t]].get([0, j]));
+
+            str = '';
+            for (k = 0; k < numStates; k++) {
+                str += alpha.get([t - 1, k]) + ' * ' + transitionProbabilities.get([k, j]) + ',';
+            }
+
+            str = str.substr(0, str.length - 1);
+
+            arrows.set([t, j], str);
         }
     }
 
-    return [alpha, alphaComputations]
+    return [alpha, alphaComputations, arrows]
 }
 
 /**
