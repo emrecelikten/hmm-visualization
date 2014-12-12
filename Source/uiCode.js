@@ -104,6 +104,22 @@ $(function(){ // on dom ready
                           'target-arrow-color': '#61bffc',
                           'transition-property': 'background-color, line-color, target-arrow-color',
                           'transition-duration': '0.5s'
+                          })
+                     .selector('.edge-with-info')
+                     .css({
+                          'background-color': '#2ecc71',
+                          'line-color': '#2ecc71',
+                          'target-arrow-color': '#2ecc71',
+                          'content': 'data(id)',
+                          'font-size' : 8
+                          })
+                     .selector(':selected')
+                     .css({
+                          'background-color': '#2ecc71',
+                          'line-color': '#2ecc71',
+                          'target-arrow-color': '#2ecc71',
+                          'transition-property': 'background-color, line-color, target-arrow-color',
+                          'transition-duration': '0.5s'
                           }),
                  
                      layout: {
@@ -135,13 +151,24 @@ $(function(){ // on dom ready
          console.log( 'tapped ' + node.id() );
          });
   
+  cy.on('select', '.highlighted-node', { foo: 'bar' }, function(evt){
+         //        console.log( evt.data.foo ); // 'bar'
+         //Remove higlighted edge class from all.
+         cy.edges('.edge-with-info').removeClass('edge-with-info');
+         var node = evt.cyTarget;
+         selectedStateCol = node.data('column');
+         edges = cy.edges("[target = '" + node.data().id + "']");
+         edges.addClass('edge-with-info');
+         console.log( 'tapped ' + node.id() );
+         });
+  
   document.getElementById("numberOfStatesInput").value = defaultNumberOfStates;
   numOfStates = defaultNumberOfStates;
   
   observationAlphabets = ['a', 'b', 'c', 'd', 'e'];
   document.getElementById("observationsInput").value = observationAlphabets.join('');
   numOfObservations = observationAlphabets.length;
-  defaults = getFlatStartProbabilities(numOfStates, observationAlphabets);
+  defaults = getRandomStartProbabilities(numOfStates, observationAlphabets);
   
   initialProbs = defaults[0];
   transitionProbabilities = defaults[1];
@@ -408,7 +435,7 @@ function numberOfStatesChanged(){
     
     numOfStates = parseInt(document.getElementById("numberOfStatesInput").value);
     
-    defaults = getFlatStartProbabilities(numOfStates, observationAlphabets);
+    defaults = getRandomStartProbabilities(numOfStates, observationAlphabets);
     initialProbs = defaults[0];
     transitionProbabilities = defaults[1];
     observationProbabilities = defaults[2];
@@ -572,7 +599,7 @@ function GetObservationProbabilities(numOfStates){
 }
 
 function GetDefaultInitialProbs(states, obs){
-    var defaults = getFlatStartProbabilities(states, obs);
+    var defaults = getRandomStartProbabilities  (states, obs);
 }
 
 
