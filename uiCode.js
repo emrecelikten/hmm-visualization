@@ -130,7 +130,7 @@ $(function(){ // on dom ready
                           'background-color': '#2ecc71',
                           'line-color': '#2ecc71',
                           'target-arrow-color': '#2ecc71',
-//                          'content': 'data(id)',
+                          'content': 'data(edgeLabel)',
                           'font-size' : 8
                           })
                      .selector(':selected')
@@ -241,6 +241,8 @@ function setOriginalState(numberOfStates){
         bestStateSequenceProbability = viterbiResult[1];
         probs = viterbiResult[2];
         phi = viterbiResult[3];
+        computations = viterbiResult[4];
+        arrows = viterbiResult[5];
     }
     
     
