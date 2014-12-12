@@ -35,45 +35,44 @@
                 <div id="controls">
                     <br>
                     <br>
-                    <div class="input-group" style="width:70%">
+                    <div id="hmmSettingsMain" style="width:57%">
+                        
                         Algorithm<br>
                         <select name="algorithm" class="form-control">
                             <option value="forward">Forward</option>
-                            <option value="backward">Backward</option>
                             <option value="viterbe">Viterbe</option>
                         </select>
                         <br>
-                    </div>
-                    Number of States
-                    <div style="width:70%">
+                       
+                        Number of States
                         <input type="number" class="form-control" id="numberOfStatesInput" placeholder="Number of states" onchange="numberOfStatesChanged()">
-                    </div>
-                    <div style="width:70%">
+                           
                         <input type="text" class="form-control" id="observationsInput" onchange="observationsChanged()" placeholder="Observation">
-                            </div>
-                    <br>
+                        Initial Probabilities
+                        <br>
+                        <input type="text" class="form-control" id="initialProbInput" onchange="initialProbChanged()">
+                        <br>
+                    </div>
+                    
                     <div class="visibleHmmSettingsInfo" id="hmmSettingsInf" style="width:57%">
                        Select a state to change its default settings
                     </div>
                     <div class="hiddenHmmSettings" id="hmmSettings" style="width:57%">
                         <br>
-                        Initial Probabilities
-                        <br>
-                        <input type="number" class="form-control" id="initialProbInput">
                         Observation Probabilities
                         <br>
-                        <input type="text" class="form-control" id="observationProbInputs" placeholder="Comma separeted probs">
+                        <input type="text" class="form-control" id="observationProbInputs" onchange="observationProbChanged()" placeholder="Comma separeted probs">
                         Transition Probablities
                         <br>
-                        <input type="text" class="form-control" id="transitionProbInputs" placeholder="Comma separeted probs">
+                        <input type="text" class="form-control" id="transitionProbInputs" onchange="transProbChanged()" placeholder="Comma separeted probs">
                     </div>
-                    <br>
-                    Animation Speed(step per minute)<br>
-                    <select name="animSpeed" class="form-control">
-                        <option value="20">20</option>
-                        <option value="40">40</option>
-                        <option value="60">60</option>
-                    </select>
+                
+<!--                    Animation Speed(step per minute)<br>-->
+<!--                    <select name="animSpeed" class="form-control">-->
+<!--                        <option value="20">20</option>-->
+<!--                        <option value="40">40</option>-->
+<!--                        <option value="60">60</option>-->
+<!--                    </select>-->
                     <br>
                     <Button class="btn btn-primary" id="startStopButton" onclick="EvaluateButtonPressed()">Evaluate</Button>
                     <input type="checkbox" id="autoModeCheckBox" onchange="autoModeChanged()" checked> Auto

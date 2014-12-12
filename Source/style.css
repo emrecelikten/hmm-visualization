@@ -69,7 +69,7 @@ body {
     border: 1px solid #e3e3e3;
 }
 
-.info-div, #hmmSettings, #hmmSettingsInf {
+.info-div, #hmmSettings, #hmmSettingsInf, #hmmSettingsMain {
     min-height: 0px;
     padding: 0px 15px 0px 15px;
     margin-bottom: 20px;
@@ -80,6 +80,10 @@ body {
     -webkit-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
     -moz-box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.05);
+}
+
+#hmmSettingsMain {
+    border: 1px solid #e3e3e3;
 }
 
 
