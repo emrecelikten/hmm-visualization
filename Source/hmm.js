@@ -68,40 +68,45 @@ function elementwiseMul(vector1, vector2) {
 
 /**
  * Computes forward probabilities for given parameters.
- * @param {Matrix} initialProbabilities          Initial state probabilities for the HMM (1xN)
- * @param {Matrix} transitionProbabilities       State transition probabilities (NxN)
- * @param {HashTable} observationProbabilities   A hash table that contains a vector (1xN) that contains the observation probabilities
+ * @param {Matrix} initialProbabilities          initial state probabilities for the HMM (1xN)
+ * @param {Matrix} transitionProbabilities       state transition probabilities (NxN)
+ * @param {HashTable} observationProbabilities   a hash table that contains a vector (1xN) that contains the observation probabilities
  *                                               per state for each observation symbol
- * @param {Array} observations                   An array of observations of which probability will be calculated according to the model
+ * @param {Array} observations                   an array of observations of which probability will be calculated according to the model
+ * @returns {*[]}                                an array containing alpha values and their computations
  */
 function forward(initialProbabilities, transitionProbabilities, observationProbabilities, observations) {
     var numStates = initialProbabilities.size()[1];
     var alpha = math.zeros(observations.length, numStates);
 
+    // Contains computation strings
+    var alphaComputations = math.matrix([observations.length, numStates]);
+
     // Fill the initial conditions
     for (i = 0; i < numStates; i++) {
         alpha.set([0, i], initialProbabilities.get([0, i]) * observationProbabilities[observations[0]].get([0, i]));
+        alphaComputations.set([0, i], initialProbabilities.get([0, i]) + '*' + observationProbabilities[observations[0]].get([0, i]));
     }
 
     // Recursion step
     for (t = 1; t < observations.length; t++) {
         for (j = 0; j < numStates; j++) {
-            alpha.set([t, j], math.multiply(row(alpha, t - 1), col(transitionProbabilities, j)) *
-            observationProbabilities[observations[t]].get([0, j]))
+            alpha.set([t, j], math.multiply(row(alpha, t - 1), col(transitionProbabilities, j)) * observationProbabilities[observations[t]].get([0, j]));
+            alphaComputations.set([t, j], '( ' + math.string(row(alpha, t - 1)) + ' . ' + math.string(col(transitionProbabilities, j)) + ' ) * ' + observationProbabilities[observations[t]].get([0, j]));
         }
     }
 
-    return alpha
+    return [alpha, alphaComputations]
 }
 
 /**
  * Runs Viterbi algorithm and decodes most likely state sequence for a given set of observations.
- * @param {Matrix} initialProbabilities          Initial state probabilities for the HMM (1xN)
- * @param {Matrix} transitionProbabilities       State transition probabilities (NxN)
- * @param {HashTable} observationProbabilities   A hash table that contains a vector (1xN) that contains the observation probabilities
+ * @param {Matrix} initialProbabilities          initial state probabilities for the HMM (1xN)
+ * @param {Matrix} transitionProbabilities       state transition probabilities (NxN)
+ * @param {HashTable} observationProbabilities   a hash table that contains a vector (1xN) that contains the observation probabilities
  *                                               per state for each observation symbol
- * @param {Array} observations                   An array of observations of which probability will be calculated according to the model
- * @returns {*[]} an array containing best state sequence, its probability, delta and phi values.
+ * @param {Array} observations                   an array of observations of which probability will be calculated according to the model
+ * @returns {*[]}                                an array containing best state sequence, its probability, delta and phi values.
  */
 function viterbi(initialProbabilities, transitionProbabilities, observationProbabilities, observations) {
     var numStates = initialProbabilities.size()[1];
@@ -155,9 +160,9 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
  * Creates flat-start probabilities for the UI.
  *
  * Sample usage: getFlatStartProbabilities(5, ['a', 'b', 'c', 'd', 'e']);
- * @param numStates number of states in the HMM
- * @param observationAlphabet an array containing the set of observations that can be encountered
- * @returns {*[]} an array containing initial state probabilities, state transition probabilities and observation probabilities
+ * @param numStates             number of states in the HMM
+ * @param observationAlphabet   an array containing the set of observations that can be encountered
+ * @returns {*[]}               an array containing initial state probabilities, state transition probabilities and observation probabilities
  */
 function getFlatStartProbabilities(numStates, observationAlphabet) {
     var initialProbabilities = math.zeros(1, numStates);
@@ -186,9 +191,9 @@ function getFlatStartProbabilities(numStates, observationAlphabet) {
  * Creates random probabilities for the UI.
  *
  * Sample usage: getFlatStartProbabilities(5, ['a', 'b', 'c', 'd', 'e']);
- * @param numStates number of states in the HMM
- * @param observationAlphabet an array containing the set of observations that can be encountered
- * @returns {*[]} an array containing initial state probabilities, state transition probabilities and observation probabilities
+ * @param numStates             number of states in the HMM
+ * @param observationAlphabet   an array containing the set of observations that can be encountered
+ * @returns {*[]}               an array containing initial state probabilities, state transition probabilities and observation probabilities
  */
 function getRandomStartProbabilities(numStates, observationAlphabet) {
     var initialProbabilities = math.zeros(1, numStates);

@@ -174,7 +174,9 @@ function setOriginalState(numberOfStates){
     currentCol = -1;
     setNavButtonStatus();
     
-    probs = forward(initialProbs, transitionProbabilities, observationProbabilities, observationAlphabets);
+    forwardResults = forward(initialProbs, transitionProbabilities, observationProbabilities, observationAlphabets);
+    probs = forwardResults[0];
+    computations = forwardResults[1];
     graphWidth = math.size(probs).subset(math.index(0));
     
     AddNodes(probs, numOfStates, graphWidth);
