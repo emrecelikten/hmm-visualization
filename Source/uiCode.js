@@ -11,6 +11,7 @@ var autoMode = true;
 var currentCol = -1;
 var animating = false;
 var defaults;
+var forwardMode = true;
 
 var selectedStateCol;
 
@@ -110,7 +111,7 @@ $(function(){ // on dom ready
                           'background-color': '#2ecc71',
                           'line-color': '#2ecc71',
                           'target-arrow-color': '#2ecc71',
-                          'content': 'data(id)',
+//                          'content': 'data(id)',
                           'font-size' : 8
                           })
                      .selector(':selected')
@@ -157,10 +158,19 @@ $(function(){ // on dom ready
          cy.edges('.edge-with-info').removeClass('edge-with-info');
          var node = evt.cyTarget;
          selectedStateCol = node.data('column');
+        
+        document.getElementById("NodeCalcInfo").innerHTML = node.data('compLabel');
+        
          edges = cy.edges("[target = '" + node.data().id + "']");
          edges.addClass('edge-with-info');
          console.log( 'tapped ' + node.id() );
          });
+  
+  cy.on('unselect', '.highlighted-node', { foo: 'bar' }, function(evt){
+        //        console.log( evt.data.foo ); // 'bar'
+        //Remove higlighted edge class from all.
+        cy.edges('.edge-with-info').removeClass('edge-with-info');
+        });
   
   document.getElementById("numberOfStatesInput").value = defaultNumberOfStates;
   numOfStates = defaultNumberOfStates;
@@ -201,13 +211,21 @@ function setOriginalState(numberOfStates){
     currentCol = -1;
     setNavButtonStatus();
     
-    forwardResults = forward(initialProbs, transitionProbabilities, observationProbabilities, observationAlphabets);
-    probs = forwardResults[0];
-    computations = forwardResults[1];
+    if(forwardMode){
+        forwardResults = forward(initialProbs, transitionProbabilities, observationProbabilities, observationAlphabets);
+        probs = forwardResults[0];
+        computations = forwardResults[1];
+    }else{
+        viterbiResult = Viterbi(initialProbs, transitionProbabilities, observationProbabilities, observationAlphabets);
+        probs = forwardResults[0];
+        computations = forwardResults[1];
+    }
+    
+    
     graphWidth = math.size(probs).subset(math.index(0));
     
-    AddNodes(probs, numOfStates, graphWidth);
-    AddEdges();
+    AddNodes(probs, computations, numOfStates, graphWidth);
+    AddEdges(computations);
     
     InitHMM();
     
@@ -217,7 +235,7 @@ function setOriginalState(numberOfStates){
     hmm.fit();
 }
 
-function AddNodes(probs,height, width){
+function AddNodes(probs, compStrings ,height, width){
     
     xi = 200;
     yi = 200;
@@ -233,7 +251,7 @@ function AddNodes(probs,height, width){
             }else{
                 cy.add({
                        group: "nodes",
-                       data: { id:  'S' + j + 'T' + (i + 1)  , weight: round(probs.subset(math.index(i,j)), 5), row: j , column: i + 1 },
+                       data: { id:  'S' + j + 'T' + (i + 1)  , weight: round(probs.subset(math.index(i,j)), 5), row: j , column: i + 1 , compLabel: compStrings.subset(math.index(i,j))},
                        position: { x: xi + (i + 1)*100, y: yi + j*100 }
                        });
             }
@@ -242,7 +260,7 @@ function AddNodes(probs,height, width){
     }
 }
 
-function AddEdges(){
+function AddEdges(compString){
     for(i=0;i<numOfObservations;i++){
         var sourceNodes = cy.elements("node[column =" + i + "]");
         var nextCol = i + 1;
@@ -297,8 +315,6 @@ function StartAnnimating(){
             //Change button name to restart
             animating = false;
         }
-        
-        
     }
     
     highlightColumnAuto();
@@ -344,6 +360,12 @@ function displayInitProbs(){
 }
 
 /************UI EVENT HANDLERS***********/
+
+function algorithmChanged(){
+    var selectedIndex = document.getElementById("algorithmSelector").selectedIndex;
+    //TODO: change this when there are more than two options
+    forwardMode = selectedIndex == 0;
+}
 
 function EvaluateButtonPressed(){
     if(autoMode){

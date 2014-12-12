@@ -24,7 +24,10 @@
             <div class="span8">
                 <div id="hmm"></div>
                 <div id="cy"></div>
-                <div id="navBar" class="pagination pagination-large pagination-right">
+                <div class="info-div" id="info-bar">
+                    <span id="NodeCalcInfo">Select a node to see how it is computed</span>
+                </div>
+                <div id="navBar" class="pagination pagination-large pagination-right" >
                     <ul>
                         <li class="disabled" id="backNavButton"><a href="#" onclick="backButtonClicked();return false;">Back</a></li>
                         <li class="disabled" id="forwardNavButton"><a href="#" onclick="nextButtonClicked();return false;">Next</a></li>
@@ -38,7 +41,7 @@
                     <div id="hmmSettingsMain" style="width:57%">
                         <br>
                         Algorithm<br>
-                        <select name="algorithm" class="form-control">
+                        <select name="algorithm" class="form-control" id="algorithmSelector" onchange="algorithmChanged()">
                             <option value="forward">Forward</option>
                             <option value="viterbi">Viterbi</option>
                         </select>

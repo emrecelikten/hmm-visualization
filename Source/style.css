@@ -7,8 +7,8 @@ body {
     margin-bottom : 40px;
 }
 
-#cy, #hmm, #navBar {
-    width: 70%;
+#cy, #hmm, #navBar,#info-bar {
+    
     position: absolute;
     left: 0;
     /*padding: 20px;*/
@@ -18,19 +18,31 @@ body {
 #cy {
     Background: #EDF1FA;
     height: 50%;
+    width: 70%;
     top: 37%;
 }
 
 #hmm {
     Background: lightgrey;
     height: 30%;
+    width: 70%;
     top: 7%;
 }
 
 #navBar {
     height: 10%;
+    width: 70%;
     top: 89%;
 }
+
+#info-bar {
+    height: 40px;
+    width:54%;
+    top: 89%;
+    color: rgb(17, 134, 241);
+}
+
+span { display:inline-block; vertical-align:middle }
 
 #controls {
     height: 100%;
