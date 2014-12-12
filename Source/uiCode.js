@@ -1,6 +1,7 @@
 var hmm, cy;
 
 var probs, graphHeight, graphWidth, numOfStates;
+var arrows;
 var observationAlphabets;
 var initialProbs;
 var transitionProbabilities;
@@ -12,6 +13,8 @@ var currentCol = -1;
 var animating = false;
 var defaults;
 var forwardMode = true;
+var prevNodeRow = -1;
+var prevNodeCol = -1;
 
 var selectedStateCol;
 
@@ -103,6 +106,22 @@ $(function(){ // on dom ready
                           'width': 'mapData(weight, 0, 30, 1, 30)',
                           'line-color': '#61bffc',
                           'target-arrow-color': '#61bffc',
+                          'transition-property': 'background-color, line-color, target-arrow-color',
+                          'transition-duration': '0.5s'
+                          })
+                     .selector('.viterbi-highlighted-node')
+                     .css({
+                          'background-color': '#e67e22',
+                          'line-color': '#e67e22',
+                          'target-arrow-color': '#e67e22',
+                          'transition-property': 'background-color, line-color, target-arrow-color',
+                          'transition-duration': '0.5s'
+                          })
+                     .selector('.viterbi-highlighted-edge')
+                     .css({
+                          'background-color': '#e67e22',
+                          'line-color': '#e67e22',
+                          'target-arrow-color': '#e67e22',
                           'transition-property': 'background-color, line-color, target-arrow-color',
                           'transition-duration': '0.5s'
                           })
@@ -215,10 +234,13 @@ function setOriginalState(numberOfStates){
         forwardResults = forward(initialProbs, transitionProbabilities, observationProbabilities, observationAlphabets);
         probs = forwardResults[0];
         computations = forwardResults[1];
+        arrows = forwardResults[2];
     }else{
-        viterbiResult = Viterbi(initialProbs, transitionProbabilities, observationProbabilities, observationAlphabets);
-        probs = forwardResults[0];
-        computations = forwardResults[1];
+        viterbiResult = viterbi(initialProbs, transitionProbabilities, observationProbabilities, observationAlphabets);
+        stateSequence = viterbiResult[0];
+        bestStateSequenceProbability = viterbiResult[1];
+        probs = viterbiResult[2];
+        phi = viterbiResult[3];
     }
     
     
@@ -313,6 +335,9 @@ function StartAnnimating(){
         }else{
             //Animation is done
             //Change button name to restart
+            if(!forwardMode){
+                StartAnnimatingViterbi();
+            }
             animating = false;
         }
     }
@@ -332,6 +357,47 @@ function highlightColumn(col){
                       edges.addClass('highlighted-edge');
                       });
     }
+}
+
+function StartAnnimatingViterbi(){
+//    setOriginalState(numOfStates);
+    var i = numOfObservations;
+    animating = true;
+    
+    var highlightNodeAuto = function(){
+        currentCol = i;
+        var row = stateSequence.subset(math.index(i - 1,0));
+        highlightNode(i,row);
+        
+        if( i > 1){
+            i--;
+            setTimeout(highlightNodeAuto, 100);
+        }else{
+            //Animation is done
+            //Change button name to restart
+            prevNodeCol = -1;
+            prevNodeRow = -1;
+        }
+    }
+    
+    highlightNodeAuto();
+    
+}
+
+function highlightNode(col,row){
+    var edges;
+    var node = cy.elements("node[column =" + col + "][ row =" + row + "]");
+    node.addClass('viterbi-highlighted-node');
+    
+    if(col > 0){
+        if(prevNodeCol > 0 && prevNodeRow > -1){
+            var prevNode = cy.elements("node[column =" + prevNodeCol + "][ row =" + prevNodeRow + "]");
+            edges = cy.edges("[target = '" + prevNode.data().id + "'][source = '" + node.data().id + "']");
+            edges.addClass('viterbi-highlighted-edge');
+        }
+    }
+    prevNodeCol = col;
+    prevNodeRow = row;
 }
 
 function disHighlightColumn(col){
@@ -365,6 +431,8 @@ function algorithmChanged(){
     var selectedIndex = document.getElementById("algorithmSelector").selectedIndex;
     //TODO: change this when there are more than two options
     forwardMode = selectedIndex == 0;
+    
+    setOriginalState(numOfStates);
 }
 
 function EvaluateButtonPressed(){
@@ -482,6 +550,10 @@ function backButtonClicked(){
 function nextButtonClicked(){
     if(currentCol < numOfObservations){
         highlightColumn(++currentCol);
+    }
+    
+    if(!forwardMode && currentCol == numOfObservations - 1){
+        StartAnnimatingViterbi();
     }
     
     setNavButtonStatus();
