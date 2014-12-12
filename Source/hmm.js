@@ -104,10 +104,10 @@ function forward(initialProbabilities, transitionProbabilities, observationProba
 
             tempStr = '';
             for (k = 0; k < numStates; k++) {
-                tempStr += alpha.get([t - 1, k]) + ' * ' + transitionProbabilities.get([k, j]) + ',';
+                tempStr += alpha.get([t - 1, k]) + ' * ' + transitionProbabilities.get([k, j]) + ', ';
             }
 
-            tempStr = tempStr.substr(0, tempStr.length - 1);
+            tempStr = tempStr.substr(0, tempStr.length - 2);
 
             arrows.set([t, j], tempStr);
         }
@@ -131,15 +131,23 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
     var delta = math.zeros(observations.length, numStates);
     var phi = math.zeros(observations.length, numStates);
 
+    var deltaComputations = math.matrix([observations.length, numStates]);
+    var arrows = math.matrix([observations.length, numStates]);
+
     // Fill the initial conditions
     for (i = 0; i < numStates; i++) {
         delta.set([0, i], initialProbabilities.get([0, i]) * observationProbabilities[observations[0]].get([0, i]));
-        phi.set([0, i], 0)
+        phi.set([0, i], 0);
+
+        var tempStr = 'initial probability for state ' + i + ' * observation probability for \'' + observations[i] + '\' at state ' + i + '\n';
+        tempStr += initialProbabilities.get([0, i]) + '*' + observationProbabilities[observations[0]].get([0, i]);
+        deltaComputations.set([0, i], tempStr);
     }
 
     /*
      Recursion step
      */
+    // TODO: Cleanup, we iterate multiple times for the same thing
     for (t = 1; t < observations.length; t++) {
         for (j = 0; j < numStates; j++) {
             var multiplication = elementwiseMul(row(delta, t - 1), col(transitionProbabilities, j));
@@ -148,7 +156,20 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
             var argmax = vectorArgmax(multiplication);
 
             phi.set([t, j], argmax);
-            delta.set([t, j], multiplication.get([0, argmax]) * observationProbabilities[observations[t]].get([0, j]))
+            delta.set([t, j], multiplication.get([0, argmax]) * observationProbabilities[observations[t]].get([0, j]));
+
+            var tempStr = 'max ( elementwise multiplication of delta_' + (t - 1) + ' and probabilities of going to state ' + j + ' )\n';
+            var arrowStr = '';
+
+            for (k = 0; k < numStates; k++) {
+                arrowStr += delta.get([t - 1, k]) + ' * ' + transitionProbabilities.get([k, j]) + ', ';
+            }
+            arrowStr = arrowStr.substr(0, arrowStr.length - 2);
+
+            tempStr += 'max( ' + arrowStr + ' )';
+
+            deltaComputations.set([t, j], tempStr);
+            arrows.set([t, j], arrowStr);
         }
     }
 
@@ -169,7 +190,7 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
 
     var bestStateSequenceProbability = delta.get([observations.length - 1, mostLikelyState]);
 
-    return [stateSequence, bestStateSequenceProbability, delta, phi]
+    return [stateSequence, bestStateSequenceProbability, delta, phi, deltaComputations, arrows]
 }
 
 
