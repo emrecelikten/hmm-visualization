@@ -86,7 +86,10 @@ function forward(initialProbabilities, transitionProbabilities, observationProba
     // Fill the initial conditions
     for (i = 0; i < numStates; i++) {
         alpha.set([0, i], initialProbabilities.get([0, i]) * observationProbabilities[observations[0]].get([0, i]));
-        alphaComputations.set([0, i], initialProbabilities.get([0, i]) + '*' + observationProbabilities[observations[0]].get([0, i]));
+
+        var tempStr = 'initial probability for state ' + i + ' * observation probability for \'' + observations[i] + '\' at state ' + i + '\n';
+        tempStr += initialProbabilities.get([0, i]) + '*' + observationProbabilities[observations[0]].get([0, i]);
+        alphaComputations.set([0, i], tempStr);
     }
 
     // Recursion step
@@ -94,16 +97,19 @@ function forward(initialProbabilities, transitionProbabilities, observationProba
     for (t = 1; t < observations.length; t++) {
         for (j = 0; j < numStates; j++) {
             alpha.set([t, j], math.multiply(row(alpha, t - 1), col(transitionProbabilities, j)) * observationProbabilities[observations[t]].get([0, j]));
-            alphaComputations.set([t, j], '( ' + math.string(row(alpha, t - 1)) + ' . ' + math.string(col(transitionProbabilities, j)) + ' ) * ' + observationProbabilities[observations[t]].get([0, j]));
 
-            str = '';
+            var tempStr = '( alpha_' + t + ' . probabilities of going to state ' + j + ' ) * observation probability for \'' + observations[t] + '\' at alpha_' + (t + 1) + '\n';
+            tempStr += '( ' + math.string(row(alpha, t - 1)) + ' . ' + math.string(col(transitionProbabilities, j)) + ' ) * ' + observationProbabilities[observations[t]].get([0, j])
+            alphaComputations.set([t, j], tempStr);
+
+            tempStr = '';
             for (k = 0; k < numStates; k++) {
-                str += alpha.get([t - 1, k]) + ' * ' + transitionProbabilities.get([k, j]) + ',';
+                tempStr += alpha.get([t - 1, k]) + ' * ' + transitionProbabilities.get([k, j]) + ',';
             }
 
-            str = str.substr(0, str.length - 1);
+            tempStr = tempStr.substr(0, tempStr.length - 1);
 
-            arrows.set([t, j], str);
+            arrows.set([t, j], tempStr);
         }
     }
 
