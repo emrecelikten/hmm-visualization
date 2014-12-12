@@ -30,13 +30,13 @@ function row(matrix, index) {
  * @param {Matrix} 1xN vector, of which index with the greatest element will be returned
  */
 function vectorArgmax(vector) {
-    max = 0;
-    argmax = -1;
+    var max = 0;
+    var argmax = -1;
 
-    arr = math.squeeze(vector);
+    var arr = math.squeeze(vector);
 
     for (k = 0; k < arr.size()[0]; k++) {
-        curr = arr.get([k])
+        var curr = arr.get([k])
         if (curr > max) {
             max = curr;
             argmax = k;
@@ -48,9 +48,10 @@ function vectorArgmax(vector) {
 
 // Needs cleanup
 function elementwiseMul(vector1, vector2) {
-    arr1 = math.squeeze(vector1);
-    arr2 = math.squeeze(vector2);
+    var arr1 = math.squeeze(vector1);
+    var arr2 = math.squeeze(vector2);
 
+    var result;
     if (arr1.size()[0] != arr2.size()[0]) {
         throw "Vectors are not of the same shape!";
     } else {
@@ -119,10 +120,10 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
      */
     for (t = 1; t < observations.length; t++) {
         for (j = 0; j < numStates; j++) {
-            multiplication = elementwiseMul(row(delta, t - 1), col(transitionProbabilities, j));
+            var multiplication = elementwiseMul(row(delta, t - 1), col(transitionProbabilities, j));
 
             // Find the argmax
-            argmax = vectorArgmax(multiplication);
+            var argmax = vectorArgmax(multiplication);
 
             phi.set([t, j], argmax);
             delta.set([t, j], multiplication.get([0, argmax]) * observationProbabilities[observations[t]].get([0, j]))
@@ -132,19 +133,19 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
     /*
      Decoding step.
      */
-    stateSequence = math.zeros(observations.length, 1);
+    var stateSequence = math.zeros(observations.length, 1);
 
     // Set the last element to the most likely value
-    mostLikelyState = vectorArgmax(row(delta, observations.length - 1));
+    var mostLikelyState = vectorArgmax(row(delta, observations.length - 1));
     stateSequence.set([observations.length - 1, 0], mostLikelyState);
 
     // Start decoding backwards
     for (t = observations.length - 2; t >= 0; t--) {
-        prevState = stateSequence.get([t + 1, 0]);
+        var prevState = stateSequence.get([t + 1, 0]);
         stateSequence.set([t, 0], phi.get([t + 1, prevState]));
     }
 
-    bestStateSequenceProbability = delta.get([observations.length - 1, mostLikelyState]);
+    var bestStateSequenceProbability = delta.get([observations.length - 1, mostLikelyState]);
 
     return [stateSequence, bestStateSequenceProbability, delta, phi]
 }
@@ -159,11 +160,11 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
  * @returns {*[]} an array containing initial state probabilities, state transition probabilities and observation probabilities
  */
 function getFlatStartProbabilities(numStates, observationAlphabet) {
-    initialProbabilities = math.zeros(1, numStates);
-    transitionProbabilities = math.zeros(numStates, numStates);
-    observationProbabilities = new Object();
+    var initialProbabilities = math.zeros(1, numStates);
+    var transitionProbabilities = math.zeros(numStates, numStates);
+    var observationProbabilities = new Object();
 
-    stateFlatStart = 1.0 / numStates;
+    var stateFlatStart = 1.0 / numStates;
 
     for (i = 0; i < numStates; i++) {
         initialProbabilities.set([0, i], stateFlatStart);
@@ -175,6 +176,62 @@ function getFlatStartProbabilities(numStates, observationAlphabet) {
 
     observationAlphabet.forEach(function (elem) {
         observationProbabilities[elem] = initialProbabilities.clone();
+    });
+
+    return [initialProbabilities, transitionProbabilities, observationProbabilities];
+}
+
+
+/**
+ * Creates random probabilities for the UI.
+ *
+ * Sample usage: getFlatStartProbabilities(5, ['a', 'b', 'c', 'd', 'e']);
+ * @param numStates number of states in the HMM
+ * @param observationAlphabet an array containing the set of observations that can be encountered
+ * @returns {*[]} an array containing initial state probabilities, state transition probabilities and observation probabilities
+ */
+function getRandomStartProbabilities(numStates, observationAlphabet) {
+    var initialProbabilities = math.zeros(1, numStates);
+    var transitionProbabilities = math.zeros(numStates, numStates);
+    var observationProbabilities = new Object();
+
+    var initialProbabilitiesNormalization = 0.0;
+
+    for (i = 0; i < numStates; i++) {
+        initialProbabilities.set([0, i], math.random(0, 1));
+
+        for (j = 0; j < numStates; j++) {
+            transitionProbabilities.set([i, j], math.random(0, 1));
+        }
+    }
+
+    observationAlphabet.forEach(function (elem) {
+        var probabilities = math.zeros(1, numStates);
+
+        for (i = 0; i < numStates; i++) {
+            probabilities.set([0, i], math.random(0, 1));
+        }
+
+        observationProbabilities[elem] = probabilities;
+    });
+
+    /*
+     Normalization
+     */
+    var initialProbNorm = math.sum(initialProbabilities);
+    initialProbabilities = math.divide(initialProbabilities, initialProbNorm)
+
+    // Maybe there is a better way of doing this.
+    for (i = 0; i < numStates; i++) {
+        var transProbNorm = math.sum(row(transitionProbabilities, i));
+        for (j = 0; j < numStates; j++) {
+            transitionProbabilities.set([i, j], transitionProbabilities.get([i, j]) / transProbNorm);
+        }
+    }
+
+    observationAlphabet.forEach(function (elem) {
+        var obsProbNorm = math.sum(observationProbabilities[elem]);
+        observationProbabilities[elem] = math.divide(observationProbabilities[elem], obsProbNorm);
     });
 
     return [initialProbabilities, transitionProbabilities, observationProbabilities];
