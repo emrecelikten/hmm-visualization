@@ -1,72 +1,4 @@
 /**
- * Retrieve a column from a matrix
- * @param {Matrix | Array} matrix
- * @param {number} index    Zero based column index
- * @return {Matrix | Array} Returns the column as a vector
- *
- * Taken from: https://github.com/josdejong/mathjs/issues/230
- */
-function col(matrix, index) {
-    var rows = math.size(matrix).valueOf()[0];
-    return math.flatten(math.subset(matrix, math.index([0, rows], index)));
-}
-
-/**
- * Retrieve a row from a matrix
- * @param {Matrix | Array} matrix
- * @param {number} index    Zero based row index
- * @return {Matrix | Array} Returns the row as a vector
- *
- * Taken from: https://github.com/josdejong/mathjs/issues/230
- */
-function row(matrix, index) {
-    var rows = math.size(matrix).valueOf()[1];
-    return math.flatten(math.subset(matrix, math.index(index, [0, rows])));
-}
-
-/**
- * A helper function for returning the largest index of a 1xN vector.
- *
- * @param {Matrix} 1xN vector, of which index with the greatest element will be returned
- */
-function vectorArgmax(vector) {
-    var max = 0;
-    var argmax = -1;
-
-    var arr = math.squeeze(vector);
-
-    for (k = 0; k < arr.size()[0]; k++) {
-        var curr = arr.get([k])
-        if (curr > max) {
-            max = curr;
-            argmax = k;
-        }
-    }
-
-    return argmax;
-}
-
-// Needs cleanup
-function elementwiseMul(vector1, vector2) {
-    var arr1 = math.squeeze(vector1);
-    var arr2 = math.squeeze(vector2);
-
-    var result;
-    if (arr1.size()[0] != arr2.size()[0]) {
-        throw "Vectors are not of the same shape!";
-    } else {
-        result = math.zeros(1, arr1.size()[0]);
-
-        for (i = 0; i < arr1.size()[0]; i++) {
-            result.set([0, i], vector1.get([i]) * vector2.get([i]));
-        }
-
-        return result
-    }
-}
-
-
-/**
  * Computes forward probabilities for given parameters.
  * @param {Matrix} initialProbabilities          initial state probabilities for the HMM (1xN)
  * @param {Matrix} transitionProbabilities       state transition probabilities (NxN)
@@ -87,7 +19,7 @@ function forward(initialProbabilities, transitionProbabilities, observationProba
     for (i = 0; i < numStates; i++) {
         alpha.set([0, i], initialProbabilities.get([0, i]) * observationProbabilities[observations[0]].get([0, i]));
 
-        var tempStr = 'initial probability for state ' + i + ' * observation probability for \'' + observations[i] + '\' at state ' + i + '\n';
+        var tempStr = 'initial probability for state ' + i + ' * observation probability for \'' + observations[i] + '\' at state ' + i + '<br>';
         tempStr += initialProbabilities.get([0, i]) + '*' + observationProbabilities[observations[0]].get([0, i]);
         alphaComputations.set([0, i], tempStr);
     }
@@ -98,8 +30,8 @@ function forward(initialProbabilities, transitionProbabilities, observationProba
         for (j = 0; j < numStates; j++) {
             alpha.set([t, j], math.multiply(row(alpha, t - 1), col(transitionProbabilities, j)) * observationProbabilities[observations[t]].get([0, j]));
 
-            var tempStr = '( alpha_' + t + ' . probabilities of going to state ' + j + ' ) * observation probability for \'' + observations[t] + '\' at alpha_' + (t + 1) + '\n';
-            tempStr += '( ' + math.string(row(alpha, t - 1)) + ' . ' + math.string(col(transitionProbabilities, j)) + ' ) * ' + observationProbabilities[observations[t]].get([0, j])
+            var tempStr = '( alpha_' + t + ' . probabilities of going to state ' + j + ' ) * observation probability for \'' + observations[t] + '\' at alpha_' + (t + 1) + '<br>';
+            tempStr += '( ' + math.string(row(alpha, t - 1)) + ' . ' + math.string(col(transitionProbabilities, j)) + ' ) * ' + observationProbabilities[observations[t]].get([0, j]);
             alphaComputations.set([t, j], tempStr);
 
             tempStr = '';
@@ -135,11 +67,11 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
     var arrows = math.matrix([observations.length, numStates]);
 
     // Fill the initial conditions
-    for (i = 0; i < numStates; i++) {
+    for (var i = 0; i < numStates; i++) {
         delta.set([0, i], initialProbabilities.get([0, i]) * observationProbabilities[observations[0]].get([0, i]));
         phi.set([0, i], 0);
 
-        var tempStr = 'initial probability for state ' + i + ' * observation probability for \'' + observations[i] + '\' at state ' + i + '\n';
+        var tempStr = 'initial probability for state ' + i + ' * observation probability for \'' + observations[i] + '\' at state ' + i + '<br>';
         tempStr += initialProbabilities.get([0, i]) + '*' + observationProbabilities[observations[0]].get([0, i]);
         deltaComputations.set([0, i], tempStr);
     }
@@ -148,8 +80,8 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
      Recursion step
      */
     // TODO: Cleanup, we iterate multiple times for the same thing
-    for (t = 1; t < observations.length; t++) {
-        for (j = 0; j < numStates; j++) {
+    for (var t = 1; t < observations.length; t++) {
+        for (var j = 0; j < numStates; j++) {
             var multiplication = elementwiseMul(row(delta, t - 1), col(transitionProbabilities, j));
 
             // Find the argmax
@@ -158,7 +90,7 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
             phi.set([t, j], argmax);
             delta.set([t, j], multiplication.get([0, argmax]) * observationProbabilities[observations[t]].get([0, j]));
 
-            var tempStr = 'max ( elementwise multiplication of delta_' + (t - 1) + ' and probabilities of going to state ' + j + ' )\n';
+            var tempStr = 'max ( elementwise multiplication of delta_' + (t - 1) + ' and probabilities of going to state ' + j + ' )<br>';
             var arrowStr = '';
 
             for (k = 0; k < numStates; k++) {
@@ -205,7 +137,7 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
 function getFlatStartProbabilities(numStates, observationAlphabet) {
     var initialProbabilities = math.zeros(1, numStates);
     var transitionProbabilities = math.zeros(numStates, numStates);
-    var observationProbabilities = new Object();
+    var observationProbabilities = {};
 
     var stateFlatStart = 1.0 / numStates;
 
@@ -236,14 +168,12 @@ function getFlatStartProbabilities(numStates, observationAlphabet) {
 function getRandomStartProbabilities(numStates, observationAlphabet) {
     var initialProbabilities = math.zeros(1, numStates);
     var transitionProbabilities = math.zeros(numStates, numStates);
-    var observationProbabilities = new Object();
+    var observationProbabilities = {};
 
-    var initialProbabilitiesNormalization = 0.0;
-
-    for (i = 0; i < numStates; i++) {
+    for (var i = 0; i < numStates; i++) {
         initialProbabilities.set([0, i], math.random(0, 1));
 
-        for (j = 0; j < numStates; j++) {
+        for (var j = 0; j < numStates; j++) {
             transitionProbabilities.set([i, j], math.random(0, 1));
         }
     }
@@ -262,7 +192,7 @@ function getRandomStartProbabilities(numStates, observationAlphabet) {
      Normalization
      */
     var initialProbNorm = math.sum(initialProbabilities);
-    initialProbabilities = math.divide(initialProbabilities, initialProbNorm)
+    initialProbabilities = math.divide(initialProbabilities, initialProbNorm);
 
     // Maybe there is a better way of doing this.
     for (i = 0; i < numStates; i++) {
