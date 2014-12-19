@@ -83,6 +83,17 @@ span { display:inline-block; vertical-align:middle }
     padding: 0px 15px 0px 15px;
 }
 
+.hiddenAlgorithmInfo{
+    height: 0px;
+    border: 0px;
+    overflow:hidden;
+}
+
+.visibleAlgorithmInfo{
+    border: 1px solid #e3e3e3;
+    padding: 0px 15px 0px 15px;
+}
+
 .info-div, #hmmSettings, #hmmSettingsInf, #hmmSettingsMain {
     min-height: 0px;
     padding: 0px 15px 0px 15px;

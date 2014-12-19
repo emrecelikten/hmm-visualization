@@ -1,94 +1,170 @@
 <!DOCTYPE html>
 <head>
-    <link href="style.css" rel="stylesheet" />
-    <meta charset=utf-8 />
+    <link href="style.css" rel="stylesheet"/>
+    <meta charset=utf-8/>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
     <script src="//cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
+    <script type="text/javascript"
+            src="//cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
     <script src="uiCode.js"></script>
 
-    
     <!-- Bootstrap core CSS -->
-<!--    <link href="../dist/css/bootstrap.min.css" rel="stylesheet">-->
+    <!--    <link href="../dist/css/bootstrap.min.css" rel="stylesheet">-->
     <link href="bootstrap-mod.css" rel="stylesheet">
-        
+
 </head>
 
 <html>
-    <body>
-        <div id="header">
-            <h1>Hidden Markov Models<small> Computation visualization </small></h1>
+<body>
+<div id="header">
+    <h1>Hidden Markov Models
+        <small> Computation visualization</small>
+    </h1>
+</div>
+<div class="row-fluid">
+    <div class="span8">
+        <div id="hmm"></div>
+        <div id="cy"></div>
+        <div class="info-div" id="info-bar">
+            <span id="NodeCalcInfo">Select a node to see how it is computed</span>
         </div>
-        <div class="row-fluid">
-            <div class="span8">
-                <div id="hmm"></div>
-                <div id="cy"></div>
-                <div class="info-div" id="info-bar">
-                    <span id="NodeCalcInfo">Select a node to see how it is computed</span>
-                </div>
-                <div id="navBar" class="pagination pagination-large pagination-right" >
-                    <ul>
-                        <li class="disabled" id="backNavButton"><a href="#" onclick="backButtonClicked();return false;">Back</a></li>
-                        <li class="disabled" id="forwardNavButton"><a href="#" onclick="nextButtonClicked();return false;">Next</a></li>
-                    </ul>
-                </div>
-            </div>
-            <div class="span4">
-                <div id="controls">
-                    <br>
-                    <br>
-                    <div id="hmmSettingsMain" style="width:57%">
-                        <br>
-                        Algorithm<br>
-                        <select name="algorithm" class="form-control" id="algorithmSelector" onchange="algorithmChanged()">
-                            <option value="forward">Forward</option>
-                            <option value="viterbi">Viterbi</option>
-                        </select>
-                        <br>
-                       
-                        Number of States
-                        <input type="number" class="form-control" id="numberOfStatesInput" placeholder="Number of states" onchange="numberOfStatesChanged()">
-                           
-                        <input type="text" class="form-control" id="observationsInput" onchange="observationsChanged()" placeholder="Observation">
-                        Initial Probabilities
-                        <br>
-                        <input type="text" class="form-control" id="initialProbInput" onchange="initialProbChanged()">
-                        <br>
-                    </div>
-                    
-                    <div class="visibleHmmSettingsInfo" id="hmmSettingsInf" style="width:57%">
-                       Select a state to change its default settings
-                    </div>
-                    <div class="hiddenHmmSettings" id="hmmSettings" style="width:57%">
-                        <br>
-                        Observation Probabilities
-                        <br>
-                        <input type="text" class="form-control" id="observationProbInputs" onchange="observationProbChanged()" placeholder="Comma separeted probs">
-                        Transition Probablities
-                        <br>
-                        <input type="text" class="form-control" id="transitionProbInputs" onchange="transProbChanged()" placeholder="Comma separeted probs">
-                    </div>
-                
-<!--                    Animation Speed(step per minute)<br>-->
-<!--                    <select name="animSpeed" class="form-control">-->
-<!--                        <option value="20">20</option>-->
-<!--                        <option value="40">40</option>-->
-<!--                        <option value="60">60</option>-->
-<!--                    </select>-->
-                    <br>
-                    <Button class="btn btn-primary" id="startStopButton" onclick="EvaluateButtonPressed()">Evaluate</Button>
-                    <input type="checkbox" id="autoModeCheckBox" onchange="autoModeChanged()" checked> Auto
-                </div>
+        <div id="navBar" class="pagination pagination-large pagination-right">
+            <ul>
+                <li class="disabled" id="backNavButton"><a href="#" onclick="backButtonClicked();return false;">Back</a>
+                </li>
+                <li class="disabled" id="forwardNavButton"><a href="#"
+                                                              onclick="nextButtonClicked();return false;">Next</a></li>
+            </ul>
+        </div>
+    </div>
+    <div class="span4">
+        <div id="controls">
+            <br>
+            <br>
 
+            <div id="hmmSettingsMain" style="width:57%">
+                <br>
+                Algorithm<br>
+                <select name="algorithm" class="form-control" id="algorithmSelector" onchange="algorithmChanged()">
+                    <option value="forward">Forward</option>
+                    <option value="viterbi">Viterbi</option>
+                </select>
+                <br>
+                Number of States
+                <input type="number" class="form-control" id="numberOfStatesInput" placeholder="Number of states"
+                       onchange="numberOfStatesChanged()">
+                <br>
+                Observation alphabet
+                <br>
+                <input type="text" class="form-control" id="observationAlphabet" onchange="observationAlphabetChanged()"
+                       placeholder="Observation">
+                <br>
+                Observations
+                <br>
+                <input type="text" class="form-control" id="observationsInput" onchange="observationsChanged()"
+                       placeholder="Observation">
+                <br>
+                Initial Probabilities
+                <br>
+                <input type="text" class="form-control" id="initialProbInput" onchange="initialProbChanged()">
+                <br>
+            </div>
+
+            <div class="visibleHmmSettingsInfo" id="hmmSettingsInf" style="width:57%">
+                Select a state to change its default settings
+            </div>
+            <div class="hiddenHmmSettings" id="hmmSettings" style="width:57%">
+                <br>
+                Observation Probabilities
+                <br>
+                <input type="text" class="form-control" id="observationProbInputs" onchange="observationProbChanged()"
+                       placeholder="Comma separated probs">
+                <br>
+                Transition Probabilities
+                <br>
+                <input type="text" class="form-control" id="transitionProbInputs" onchange="transProbChanged()"
+                       placeholder="Comma separated probs">
+            </div>
+
+            <!--                    Animation Speed(step per minute)<br>-->
+            <!--                    <select name="animSpeed" class="form-control">-->
+            <!--                        <option value="20">20</option>-->
+            <!--                        <option value="40">40</option>-->
+            <!--                        <option value="60">60</option>-->
+            <!--                    </select>-->
+            <br>
+            <Button class="btn btn-primary" id="startStopButton" onclick="evaluateButtonPressed()">Evaluate</Button>
+            <input type="checkbox" id="autoModeCheckBox" onchange="autoModeChanged()" checked> Auto
+            <!-- TODO: Is there a cleaner way of doing this? - Emre -->
+            <br><br><br>
+
+            <div class="visibleAlgorithmInfo" id="forwardInfo" style="width:57%">
+                Forward algorithm:
+                <br>
+                Initialization.
+                <br>
+                \[
+                   \alpha_1(i) = \pi_i b_i(O_1) \qquad (1 \leq i \leq N)
+                \]
+                <br>
+                Induction.
+                <br>
+                \[
+                    \alpha_{t+1}(j) = \Big[ \sum_{i=1}^N \alpha_t(i)a_{ij} \Big] b_j (O_{t+1}) \\
+                    (1 \leq t \leq T - 1, \quad 1 \leq j \leq N)
+                \]
+                <br>
+                Termination.
+                \[
+                    P(O | \lambda) = \sum_{i=1}^N \alpha_T(i)
+                \]
+            </div>
+            <div class="hiddenAlgorithmInfo" id="viterbiInfo" style="width:57%">
+                Viterbi algorithm:
+                <br>
+                Initialization.
+                <br>
+                \[
+                    \begin{aligned}
+                        \delta_1(i) & = \pi_ib_i(O_1) \qquad (1 \leq i \leq N) \\
+                        \psi_1(i) & = 0
+                    \end{aligned}
+                \]
+                <br>
+                Recursion.
+                <br>
+                \[
+                    \begin{aligned}
+                        \delta_t(j) & = \max_{1 \leq i \leq N} \delta_{t-1}(i)a_{ij}b_j(O_t) \\
+                        \psi_t(j) & = \arg\!\max_{1 \leq i \leq N} \delta_{t-1}(i)a_{ij}
+                    \end{aligned} \\
+                    (2 \leq t \leq T, \quad 1 \leq j \leq N )
+                <br>
+                Termination.
+                \[
+                    \begin{aligned}
+                        P^* & = \max_{1 \leq i \leq N} \delta_T(i) \\
+                        q^*_T & = \arg\!\max_{1 \leq i \leq N} \delta_T(i)
+                    \end{aligned}
+                \]
+                <br>
+                State sequence backtracking.
+                \[
+                    q^*_t = \psi_{t+1}q^*_{t+1} \qquad t = T-1, T-2, \dots, 1
+                \]
             </div>
         </div>
-        
-        
-        <!-- Bootstrap core JavaScript
-         ================================================== -->
-        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-        <script src="//cdnjs.cloudflare.com/ajax/libs/mathjs/1.1.1/math.js"></script>
-        <script src="helper.js"></script>
-        <script src="hmm.js"></script>
-        <script src="../dist/js/bootstrap.min.js"></script>
-    </body>
+
+    </div>
+</div>
+
+
+<!-- Bootstrap core JavaScript
+ ================================================== -->
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/mathjs/1.1.1/math.js"></script>
+<script src="helper.js"></script>
+<script src="hmm.js"></script>
+<script src="../dist/js/bootstrap.min.js"></script>
+</body>
 </html>

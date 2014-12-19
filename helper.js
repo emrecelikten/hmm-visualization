@@ -27,7 +27,7 @@ function row(matrix, index) {
 /**
  * A helper function for returning the largest index of a 1xN vector.
  *
- * @param {Matrix} 1xN vector, of which index with the greatest element will be returned
+ * @param {Matrix} vector   1xN vector, of which index with the greatest element will be returned
  */
 function vectorArgmax(vector) {
     var max = 0;
@@ -46,7 +46,11 @@ function vectorArgmax(vector) {
     return argmax;
 }
 
-// Needs cleanup
+/**
+ * A helper function for element-wise multiplication of two vectors.
+ *
+ * @returns {*} a vector that contains element-wise multiplication of vector1 and vector2
+ */
 function elementwiseMul(vector1, vector2) {
     var arr1 = math.squeeze(vector1);
     var arr2 = math.squeeze(vector2);
@@ -63,4 +67,8 @@ function elementwiseMul(vector1, vector2) {
 
         return result
     }
+}
+
+function round(value, decimals) {
+    return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
 }

@@ -20,7 +20,7 @@ function forward(initialProbabilities, transitionProbabilities, observationProba
         alpha.set([0, i], initialProbabilities.get([0, i]) * observationProbabilities[observations[0]].get([0, i]));
 
         var tempStr = 'initial probability for state ' + i + ' * observation probability for \'' + observations[i] + '\' at state ' + i + '<br>';
-        tempStr += initialProbabilities.get([0, i]) + '*' + observationProbabilities[observations[0]].get([0, i]);
+        tempStr += initialProbabilities.get([0, i]) + ' * ' + observationProbabilities[observations[0]].get([0, i]);
         alphaComputations.set([0, i], tempStr);
     }
 
@@ -72,7 +72,7 @@ function viterbi(initialProbabilities, transitionProbabilities, observationProba
         phi.set([0, i], 0);
 
         var tempStr = 'initial probability for state ' + i + ' * observation probability for \'' + observations[i] + '\' at state ' + i + '<br>';
-        tempStr += initialProbabilities.get([0, i]) + '*' + observationProbabilities[observations[0]].get([0, i]);
+        tempStr += initialProbabilities.get([0, i]) + ' * ' + observationProbabilities[observations[0]].get([0, i]);
         deltaComputations.set([0, i], tempStr);
     }
 
